@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String
+  createdAt DateTime @default(now())
+
+  ownedDocuments Document[]   @relation("OwnedDocuments")
+  shares         Share[]
+  attachments    Attachment[]
+}
+
+model Document {
+  id          String       @id @default(cuid())
+  title       String
+  content     String       @default("")
+  ownerId     String
+  owner       User         @relation("OwnedDocuments", fields: [ownerId], references: [id])
+  shares      Share[]
+  attachments Attachment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  documentId   String
+  document     Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  filename     String
+  mimeType     String
+  size         Int
+  data         Bytes
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model Share {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, userId])
+}

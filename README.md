@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Scope cuts & tradeoffs
+
+- **Attachment storage is Postgres `bytea`, not S3/Vercel Blob.** Files are stored as raw bytes in the `Attachment.data` column instead of an external object store. This was a deliberate timebox call: it needed zero new infra/API keys and, unlike writing to the server's local filesystem, it actually persists on Vercel's serverless deployment (whose filesystem is ephemeral). At real scale, or for larger files, this should be swapped for S3 or Vercel Blob — storing large binaries in the primary DB doesn't scale well (bloats backups, no CDN/streaming, DB connection pool doing double duty as file I/O).
+
 ## Getting Started
 
 First, run the development server:
