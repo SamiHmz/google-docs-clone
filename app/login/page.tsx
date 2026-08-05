@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { loginAs } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage() {
   const users = await prisma.user.findMany({ orderBy: { name: "asc" } });
 
